@@ -1,0 +1,7 @@
+# CipherVault 2.0 - Core Python Requirements (Phase 1 & Phase 2)
+# Runtime dependencies for authentication & modern file cryptography
+argon2-cffi==25.1.0
+cryptography==50.0.2
+
+# Testing and verification dependencies
+pytest==7.4.4

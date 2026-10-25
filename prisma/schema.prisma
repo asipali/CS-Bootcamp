@@ -1,0 +1,77 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String             @id @default(uuid())
+  username           String             @unique
+  email              String             @unique
+  passwordHash       String             // Argon2id or secure hash
+  clientSalt         String             // Salt for client-side Master KEK derivation
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  files              FileRecord[]
+  auditLogs          AuditLog[]
+  creditAccount      CreditAccount?
+  creditTransactions CreditTransaction[]
+}
+
+model CreditAccount {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance        Int      @default(25)
+  initialGrant   Int      @default(25)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model CreditTransaction {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String   // INITIAL_GRANT, USAGE_DEDUCTION, REFUND
+  amount         Int      // Signed integer: e.g. +25 for grant, -1 for deduction
+  balanceAfter   Int      // Balance snapshot immediately after transaction
+  operationId    String?  // Reference to fileRecord ID or grant ID
+  reason         String   // Description of credit allocation or usage
+  createdAt      DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model FileRecord {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originalName    String   // Client-encrypted or safe sanitized display name
+  mimeType        String   // MIME media type (e.g. application/pdf)
+  ciphertextSize  Int      // Size in bytes of stored .cvault container
+  storageId       String   @unique // Internal UUID used for blob file storage
+  formatVersion   Int      @default(1)
+  algorithm       String   @default("AES-256-GCM")
+  fileHashSha256  String   // SHA-256 hash of the stored ciphertext container
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  eventType     String   // AUTH_LOGIN, AUTH_LOGOUT, VAULT_UPLOAD, VAULT_DOWNLOAD, VAULT_DELETE, ACCESS_DENIED
+  status        String   // SUCCESS, FAILED
+  ipHash        String   // Anonymized SHA-256 hash of client IP
+  details       String?  // Sanitized metadata (strictly zero passwords, keys, or plaintext)
+  timestamp     DateTime @default(now())
+
+  @@index([userId, eventType])
+}
+

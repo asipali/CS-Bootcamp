@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Next.js Build Outputs
+.next/
+out/
+build/
+dist/
+
+# Testing & Coverage
+.pytest_cache/
+coverage/
+*.coverage
+
+# Database & Storage runtime files
+prisma/dev.db-journal
+storage/vault/*.cvault
+
+# Local Environment Variables
+.env*.local
+.env
+
+# OS Metadata
+.DS_Store
+Thumbs.db
