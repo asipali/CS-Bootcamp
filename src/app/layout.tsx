@@ -48,7 +48,7 @@ export default function RootLayout({
                 Demo Credits
               </Link>
             </div>
-            <p className="text-slate-400">
+            <p className="text-slate-500">
               NIST SP 800-38D AES-GCM &bull; PBKDF2 (600k iters) &bull; RFC 9106 Argon2id
             </p>
           </div>

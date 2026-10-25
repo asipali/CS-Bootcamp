@@ -252,10 +252,10 @@ function AuthForm() {
 
         <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-1 font-mono text-xs text-slate-700">
           <div>
-            <span className="text-slate-400 select-none">Email: </span>demo@ciphervault.local
+            <span className="text-slate-500 select-none">Email: </span>demo@ciphervault.local
           </div>
           <div>
-            <span className="text-slate-400 select-none">Password: </span>DemoVault@2026!
+            <span className="text-slate-500 select-none">Password: </span>DemoVault@2026!
           </div>
         </div>
 

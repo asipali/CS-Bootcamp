@@ -19,11 +19,11 @@ const config: Config = {
           950: "#052e16",
         },
         cyber: {
-          dark: "#0b0f19",
-          card: "#111827",
-          border: "#1f2937",
-          cyan: "#06b6d4",
-          blue: "#3b82f6",
+          dark: "#0f172a",
+          card: "#ffffff",
+          border: "#e2e8f0",
+          cyan: "#0284c7",
+          blue: "#2563eb",
         }
       },
     },
