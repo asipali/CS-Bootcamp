@@ -26,23 +26,16 @@ CipherVault 2.0 features a dedicated public website experience alongside authent
 
 ---
 
-## 2. Demonstration Account & Free Credit System
+## 2. Free Evaluation Credit System
 
 To allow immediate evaluation of client-side file encryption without requiring payment or external setup:
 
-### Demo Account Credentials
-- **Email:** `demo@ciphervault.local`
-- **Password:** `DemoVault@2026!`
-- **Initial Balance:** 100 demo credits
-- **Access:** Accessible via the **Use Demo Account** button on the Login page (auto-fills the fields without silent auto-submission).
-- **Security Isolation:** Seeded idempotently via `scripts/seed_demo.ts`. The demo account is restricted strictly to its own records, possesses no administrative privileges, and cannot access real user data.
-
 ### Credit Allocation & Policy
 - **New Account Grant:** Every new registered account automatically receives **25 free credits** upon creation.
-- **Demo Account Grant:** The evaluation demo account starts with **100 credits**.
 - **Credit Consumption:** Exactly **1 credit** is consumed when a file encryption and vault upload operation successfully completes. Failed uploads do not consume credits.
 - **Always-Free Operations:** File downloads, authenticated file decryptions, metadata viewing, and Cryptography Lab exercises **never consume credits** and remain completely accessible even if an account reaches zero credits.
 - **Usage & History Page (`/credits`):** Authenticated users can inspect their real persisted balance, initial allocation, credits consumed, and a detailed transaction history table.
+- **Authorized Evaluation:** For course staff and authorized academic evaluators, pre-configured evaluation account details are documented separately in the private assessment guide (`README_PRIVATE.md`), excluded from public release packages.
 
 ---
 

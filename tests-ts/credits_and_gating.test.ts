@@ -251,4 +251,17 @@ describe("Demo Account, Credit System & Auth Gating Integration Suite", () => {
     });
     expect(finalAccount?.balance).toBe(0);
   });
+
+  it("should verify demonstration account credentials authenticate successfully", async () => {
+    const demo = await ensureDemoAccount();
+    expect(demo.email).toBe("demo@ciphervault.local");
+
+    const validPassword = await verifyPassword(demo.passwordHash, DEMO_CONFIG.PASSWORD);
+    expect(validPassword).toBe(true);
+
+    const creditAccount = await prisma.creditAccount.findUnique({
+      where: { userId: demo.id },
+    });
+    expect(creditAccount?.balance).toBe(100);
+  });
 });

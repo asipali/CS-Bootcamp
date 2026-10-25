@@ -59,6 +59,10 @@ export default function VaultDashboard() {
       }
       if (meRes.ok) {
         const meData = await meRes.json();
+        if (!meData?.authenticated) {
+          window.location.href = "/login?redirect=/vault&reason=vault";
+          return;
+        }
         if (meData?.user?.credits !== undefined) {
           setCredits(meData.user.credits);
         }

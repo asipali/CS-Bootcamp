@@ -204,6 +204,36 @@ All components across default, hover, keyboard focus, disabled, error, and empty
 
 ---
 
+## 7.2 Public Credentials Removal & Authentication Gating Enforcement
+
+A complete application-level security audit was executed to decouple public visitors from sensitive demonstration credentials and enforce strict multi-tenant authorization controls:
+
+1. **Header Navigation Restructuring:**
+   - Removed the **Get Started** button completely from [`src/components/Navbar.tsx`](file:///d:/Desktop/HackShift/bootcamp/src/components/Navbar.tsx).
+   - Preserved brand logo, version tag (`2.0`), Features, Crypto Lab, Secure Vault, Audit, and a styled **Sign In** action.
+   - Header alignment and responsive mobile behavior verified without empty gaps.
+
+2. **Removal of Demonstration Credentials from Public UI:**
+   - Removed the entire **Restricted Demonstration Account** section from [`src/app/login/page.tsx`](file:///d:/Desktop/HackShift/bootcamp/src/app/login/page.tsx) (heading, credit badge, descriptions, demo email, demo password, and auto-fill buttons).
+   - Sanitized input placeholder text so demo credentials are never hinted in forms.
+   - Updated homepage (`/`) and features page (`/features`) copy to reference standard account registration and evaluation without publishing pre-configured demo account details.
+
+3. **Private Evaluator Documentation (`README_PRIVATE.md`):**
+   - Created confidential evaluation guide [`README_PRIVATE.md`](file:///d:/Desktop/HackShift/bootcamp/README_PRIVATE.md) containing the active demo account credentials (`demo@ciphervault.local` / `DemoVault@2026!`), local startup instructions, live application URL, demo credit policy, and isolation boundaries.
+   - Verified that `README_PRIVATE.md` is strictly excluded from Git tracking via [`.gitignore`](file:///d:/Desktop/HackShift/bootcamp/.gitignore) and excluded from the public source archive via [`scripts/package_source.py`](file:///d:/Desktop/HackShift/bootcamp/scripts/package_source.py).
+   - Sanitized public [`README.md`](file:///d:/Desktop/HackShift/bootcamp/README.md) to keep it free of all passwords, credentials, and secrets.
+
+4. **Server-Side Authorization & Anti-IDOR Enforcement:**
+   - All protected API routes (`/api/vault/files`, `/api/vault/upload`, `/api/vault/files/[id]`, `/api/vault/files/[id]/download`, `/api/audit`, `/api/credits/history`) strictly validate the authenticated session cookie (`cvault_session`) and return `401 Unauthorized` for anonymous requests.
+   - Cross-tenant file downloads and deletions enforce cryptographic ownership checks (`fileRecord.userId === session.userId`), rejecting foreign requests with `403 Forbidden` and logging security alerts to the immutable audit database.
+   - Direct visits to protected pages (`/vault`, `/audit`, `/credits`) automatically redirect unauthenticated visitors to `/login?redirect=...` with the intended destination preserved.
+
+5. **Demo Account Integrity & Idempotency:**
+   - The demo account maintains its configured **100 credits** in the database.
+   - Seeding via `scripts/seed_demo.ts` and runtime lazy initialization in `/api/auth/login` are strictly idempotent and never duplicate credit grants or reset passwords upon server restarts.
+
+---
+
 ## 8. Remaining Limitations & Risk Analysis
 
 1. **Passphrase Recovery (Zero-Knowledge Trade-off):**

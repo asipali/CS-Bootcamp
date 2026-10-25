@@ -25,3 +25,7 @@ storage/vault/*.cvault
 # OS Metadata
 .DS_Store
 Thumbs.db
+
+# Private Evaluator Documentation
+README_PRIVATE.md
+

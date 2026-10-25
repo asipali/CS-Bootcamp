@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth/password";
 import { setSessionCookie } from "@/lib/auth/session";
+import { ensureDemoAccount, DEMO_CONFIG } from "@/lib/auth/demo-account";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -17,6 +18,13 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanUser = username.trim();
+    if (
+      cleanUser.toLowerCase() === DEMO_CONFIG.EMAIL.toLowerCase() ||
+      cleanUser === DEMO_CONFIG.USERNAME
+    ) {
+      await ensureDemoAccount();
+    }
+
     const user = await prisma.user.findFirst({
       where: {
         OR: [{ username: cleanUser }, { email: cleanUser.toLowerCase() }],

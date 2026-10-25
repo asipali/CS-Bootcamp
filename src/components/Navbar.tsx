@@ -106,20 +106,12 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-3 py-1.5 rounded-md text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/login?tab=register"
-                  className="px-3.5 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition shadow-sm"
-                >
-                  Get Started
-                </Link>
-              </>
+              <Link
+                href="/login"
+                className="px-3.5 py-1.5 rounded-md text-sm font-medium border border-slate-300 hover:border-slate-400 text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 transition shadow-xs"
+              >
+                Sign In
+              </Link>
             )}
           </div>
         </nav>

@@ -43,16 +43,15 @@ export default function FeaturesPage() {
             <span>Free Evaluation Credits Included</span>
           </div>
           <p className="text-xs sm:text-sm text-slate-600">
-            Every new registered account receives <strong>25 free demo credits</strong>. Or use our
-            pre-configured evaluation demo account with <strong>100 demo credits</strong>. One credit
+            Every new registered account receives <strong>25 free demo credits</strong>. One credit
             is consumed per encrypted file upload. File decryption and lab features are always free.
           </p>
         </div>
         <Link
-          href="/login"
+          href="/login?tab=register"
           className="whitespace-nowrap px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium transition shadow-sm"
         >
-          Access Demo Account
+          Create Free Account
         </Link>
       </section>
 
@@ -326,15 +325,15 @@ export default function FeaturesPage() {
           Ready to experience client-side zero-knowledge encryption?
         </h3>
         <p className="text-slate-600 max-w-xl mx-auto text-sm sm:text-base">
-          Sign in with the instant demonstration account (100 credits) or create a new account (25
-          credits) to start encrypting files immediately.
+          Sign in to an existing account or create a new account (with 25 free credits) to start
+          encrypting files immediately.
         </p>
         <div className="pt-2 flex flex-wrap justify-center gap-3">
           <Link
             href="/login"
             className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-sm"
           >
-            Sign In with Demo Account
+            Sign In
           </Link>
           <Link
             href="/login?tab=register"

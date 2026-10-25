@@ -31,6 +31,7 @@ EXCLUDE_DIRS = {
 
 EXCLUDE_FILES = {
     ARCHIVE_NAME,
+    "README_PRIVATE.md",
     ".env",
     ".env.local",
     "dev.db",

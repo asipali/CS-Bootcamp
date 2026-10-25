@@ -38,20 +38,20 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Free Demo Credits Callout */}
+      {/* Free Evaluation Allowance Callout */}
       <div className="max-w-4xl mx-auto rounded-xl border border-blue-200 bg-blue-50/70 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-3 text-slate-800 text-xs sm:text-sm">
           <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0" />
           <div>
-            <span className="font-semibold text-blue-900">Try Free Demo Account:</span>{" "}
-            Evaluate immediately with <strong>100 pre-loaded demo credits</strong> (or register to claim 25 free credits).
+            <span className="font-semibold text-blue-900">Evaluation Allowance:</span>{" "}
+            Register an account to receive <strong>25 free demo credits</strong> for zero-knowledge file encryption. Decryption and lab exercises are always free.
           </div>
         </div>
         <Link
           href="/login"
           className="whitespace-nowrap px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-xs"
         >
-          Sign In / Demo
+          Sign In / Register
         </Link>
       </div>
 
