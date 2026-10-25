@@ -103,3 +103,74 @@ export function deserializeContainer(data: Uint8Array): DecodedVaultContainer {
     ciphertext,
   };
 }
+
+export interface ContainerInspection {
+  isValid: boolean;
+  version?: number;
+  algorithm?: string;
+  kdfAlgorithm?: string;
+  iterations?: number;
+  saltHex?: string;
+  nonceHex?: string;
+  authTagHex?: string;
+  ciphertextSize?: number;
+  totalSize?: number;
+  error?: string;
+}
+
+/**
+ * Inspects a .cvault binary container and extracts non-sensitive cryptographic metadata.
+ * Returns a validated inspection object or a descriptive error without throwing.
+ */
+export function inspectContainer(data: Uint8Array): ContainerInspection {
+  if (data.length < MIN_HEADER_SIZE) {
+    return {
+      isValid: false,
+      error: `File is too small (${data.length} bytes) to be a valid .cvault container (minimum ${MIN_HEADER_SIZE} bytes).`,
+    };
+  }
+
+  const magic = new TextDecoder().decode(data.slice(0, 4));
+  if (magic !== MAGIC_BYTES) {
+    return {
+      isValid: false,
+      error: `Invalid container signature '${magic}'. Supported format requires standard '${MAGIC_BYTES}' binary header.`,
+    };
+  }
+
+  const version = data[4];
+  if (version !== FORMAT_VERSION) {
+    return {
+      isValid: false,
+      error: `Unsupported container format version ${version}. Only version ${FORMAT_VERSION} is supported.`,
+    };
+  }
+
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const iterations = view.getUint32(21, false);
+
+  if (iterations < 100000 || iterations > 5000000) {
+    return {
+      isValid: false,
+      error: `Insecure or unsupported PBKDF2 iteration parameter: ${iterations}. Expected 100,000 - 5,000,000.`,
+    };
+  }
+
+  const toHex = (bytes: Uint8Array) =>
+    Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+  return {
+    isValid: true,
+    version,
+    algorithm: "AES-256-GCM (NIST SP 800-38D)",
+    kdfAlgorithm: "PBKDF2-HMAC-SHA256",
+    iterations,
+    saltHex: toHex(data.slice(5, 21)),
+    nonceHex: toHex(data.slice(65, 77)),
+    authTagHex: toHex(data.slice(77, 93)),
+    ciphertextSize: data.length - MIN_HEADER_SIZE,
+    totalSize: data.length,
+  };
+}

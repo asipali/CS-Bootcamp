@@ -1,8 +1,8 @@
 # CipherVault 2.0 — Final Test Execution Results & Verification Matrix
 
-**Document Version:** 3.2.0 (Public Features, Auth Gating & Demo Credit System Verified)  
+**Document Version:** 4.0.0 (Password-Protected Download & External Decryption Verified)  
 **Execution Timestamp:** October 25, 2026  
-**Total Tests Executed:** 116 Automated Assertions + Live Localhost Endpoint Audit (100% Passed, 0 Failed, 0 Skipped)  
+**Total Tests Executed:** 121 Automated Assertions + Live Localhost Endpoint Audit (100% Passed, 0 Failed, 0 Skipped)  
 
 ---
 
@@ -10,18 +10,18 @@
 
 | Test Category | Command / Suite | Actual Outcome | Notes |
 | :--- | :--- | :--- | :--- |
-| **Python Unit & Regression** | `python -m pytest tests/ -v` | **70 PASSED** (5.51s) | Modulo-92 Caesar, Substitution bijection, Shuffle transposition, Argon2id, atomic persistence. |
+| **Python Unit & Regression** | `python -m pytest tests/ -v` | **70 PASSED** (5.33s) | Modulo-92 Caesar, Substitution bijection, Shuffle transposition, Argon2id, atomic persistence. |
 | **Python E2E Multi-Format** | `pytest tests/test_integration_e2e.py` | **3 PASSED** | PDF, DOCX, TXT, PNG, BIN, Empty file SHA-256 roundtrips, disk tampering, size limits. |
-| **Web Crypto AES-GCM** | `npm test -- tests-ts/crypto.test.ts` | **7 PASSED** (1.73s) | Web Crypto API AES-256-GCM, PBKDF2 (600k iters), AES-KW key wrap, bit-flip & tag tampering rejection. |
-| **Multi-Tenant Isolation & IDOR** | `npm test -- tests-ts/isolation.test.ts`| **4 PASSED** (1.71s) | Verified User B cannot access/delete User A's files; path traversal prevention; constant-time auth. |
-| **Demo Account & Credit System** | `npm test -- tests-ts/credits_and_gating.test.ts` | **5 PASSED** (1.32s) | Demo account 100 credits grant, registration 25 credits grant, 1 credit deduction, 0 credit download allowed, upload rejection on 0 balance. |
-| **TypeScript Full-Stack E2E** | `npm test -- tests-ts/integration_e2e.test.ts`| **1 PASSED** (1.63s) | Multi-format (PDF, DOCX, PNG, BIN, Empty) Web Crypto & Prisma storage roundtrips. |
-| **TypeScript Classical Ciphers**| `npm test -- tests-ts/classical.test.ts`| **7 PASSED** (10ms) | Modulo-92 Caesar, Substitution, Shuffle, and Shannon entropy frequency analysis. |
+| **Web Crypto AES-GCM & Portable Sharing** | `npm test -- tests-ts/crypto.test.ts` | **11 PASSED** (4.26s) | Multi-format files, fresh nonces/salts, wrong password, tampered ciphertext, tampered tag, tampered nonce, truncated header, invalid magic bytes, container inspection, isolated end-to-end portable transfer. |
+| **Multi-Tenant Isolation & IDOR** | `npm test -- tests-ts/isolation.test.ts`| **4 PASSED** (1.63s) | Verified User B cannot access/delete User A's files; path traversal prevention; constant-time auth. |
+| **Demo Account & Credit System** | `npm test -- tests-ts/credits_and_gating.test.ts` | **6 PASSED** (1.61s) | Demo account 100 credits grant, registration 25 credits grant, 1 credit deduction on upload, 0 credit download allowed, upload rejection on 0 balance. |
+| **TypeScript Full-Stack E2E** | `npm test -- tests-ts/integration_e2e.test.ts`| **1 PASSED** (1.58s) | Multi-format (PDF, DOCX, PNG, BIN, Empty) Web Crypto & Prisma storage roundtrips. |
+| **TypeScript Classical Ciphers**| `npm test -- tests-ts/classical.test.ts`| **7 PASSED** (15ms) | Modulo-92 Caesar, Substitution, Shuffle, and Shannon entropy frequency analysis. |
 | **Standalone CLI Self-Test** | `python CipherVault.py --test` | **22 PASSED** (0.75s) | Standalone in-process test runner validating core invariants without external test runners. |
-| **TypeScript Type Checking** | `npx tsc --noEmit` | **0 ERRORS** (Exit 0) | Strict type-safety across all components, API route handlers, and cryptographic wrappers. |
-| **Next.js Production Build** | `npm run build` | **SUCCESS** (Exit 0) | Compiled all 18 static and dynamic pages with optimized chunk bundles (87.3 kB shared JS). |
-| **Live Localhost Execution** | `http://localhost:3000` | **VERIFIED LIVE** | Active daemon server, responsive UI routes (`/`, `/features`, `/credits`, `/login`, `/vault`, `/lab`, `/audit`). |
-| **Live Auth & Credit Gating** | HTTP Cookie Session Audit | **VERIFIED 200 OK** | Registration, session issuance, demo account (100 credits), and unauthenticated API 401 rejections validated live. |
+| **TypeScript Type Checking** | `npx tsc --noEmit` | **0 ERRORS** (Exit 0) | Strict type-safety across all components, API route handlers, cryptographic wrappers, and `/decrypt`. |
+| **Next.js Production Build** | `npm run build` | **SUCCESS** (Exit 0) | Compiled all 19 static and dynamic pages with optimized chunk bundles (87.3 kB shared JS). |
+| **Live Localhost Execution** | `http://localhost:3000` | **VERIFIED LIVE** | Active daemon server, responsive UI routes (`/`, `/decrypt`, `/features`, `/credits`, `/login`, `/vault`, `/lab`, `/audit`). |
+| **Live Portable Decryption** | Node / TS Verification Script | **VERIFIED 200 OK** | `CipherVault_Demo_Encrypted.cvault` inspected, wrong password rejected, correct password (`DemoVault@2026!`) decrypted cleanly. |
 
 ---
 

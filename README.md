@@ -1,22 +1,91 @@
 # CipherVault 2.0 — Industry-Oriented Secure File Vault & Cryptography Security Lab
 
-[![Tests Status](https://img.shields.io/badge/All%20Tests-116%20passed-brightgreen)](#)
+[![Tests Status](https://img.shields.io/badge/All%20Tests-121%20passed-brightgreen)](#)
 [![Python Tests](https://img.shields.io/badge/pytest-70%20passed-success)](#)
-[![Vitest Tests](https://img.shields.io/badge/vitest-24%20passed-success)](#)
+[![Vitest Tests](https://img.shields.io/badge/vitest-29%20passed-success)](#)
 [![Next.js Build](https://img.shields.io/badge/next.js-14.2%20build%20passing-blue)](#)
 [![Crypto Architecture](https://img.shields.io/badge/crypto-AES--256--GCM%20%2B%20AES--KW-orange)](#)
 
-CipherVault 2.0 is an enterprise-focused zero-knowledge file security platform and educational cryptography laboratory. It combines two strictly separated capabilities:
+CipherVault 2.0 is an enterprise-focused zero-knowledge file security platform and educational cryptography laboratory. It combines three core operational modules:
 
 1. **Module A — Cryptography Learning Lab (Educational):**  
    Preserves classical ciphers (Caesar, Random Substitution, and Shuffle Transposition) over a standardized 92-character alphabet ($32–126 \setminus \{34, 92, 96\}$). Features live character transformation visualizers, frequency analysis histograms, and Shannon entropy calculators. Clearly labeled as mathematically broken and unsuitable for real confidential data.
 
-2. **Module B — Secure File Vault (Zero-Knowledge):**  
+2. **Module B — Secure File Vault (Zero-Knowledge Cloud Storage):**  
    Hardware-accelerated **AES-256-GCM** client-side file encryption (Web Crypto API) encapsulated in a structured 93-byte `.cvault` container format. Features PBKDF2-HMAC-SHA256 (600,000 iterations) key derivation, NIST SP 800-38F AES Key Wrap (AES-KW) envelope encryption, server-side user isolation (Next.js, Prisma ORM, SQLite), privacy-aware audit logging, and a **persistent free-credit evaluation system**.
+
+3. **Module C — Portable Encrypted File Transfer & Decryption (Zero-Knowledge):**  
+   Standalone client-side workflows enabling users to encrypt files with a password and download portable `.cvault` containers. Recipients can import and decrypt `.cvault` containers independently without requiring the sender's account, session, or database records. Includes a dedicated public decryption tool at `/decrypt` accessible to anonymous users.
 
 ---
 
-## 1. Public Features & Authentication Gating
+## 1. Portable File Encryption & Decryption Workflows
+
+CipherVault 2.0 provides two portable file-sharing workflows alongside persistent vault storage:
+
+### Workflow A — Encrypt and Download a Password-Protected File
+1. Sign in to CipherVault and navigate to **Secure Vault** (`/vault`) -> **Encrypt & Download (.cvault)**.
+2. Select any local file (PDF, DOCX, TXT, PNG, JPG, ZIP, or arbitrary binary data up to 50 MB).
+3. Set an encryption password ($\ge 8$ characters) and confirm it.
+4. Click **Encrypt & Download Container**:
+   - The browser generates an ephemeral 256-bit File Encryption Key (FEK) via CSPRNG.
+   - Derives a Key Encryption Key (KEK) using PBKDF2-HMAC-SHA256 (600,000 iterations) with a fresh 16-byte random salt.
+   - Wraps the FEK with the KEK using NIST SP 800-38F AES Key Wrap (40-byte envelope).
+   - Encrypts the payload with AES-256-GCM using a fresh 12-byte nonce and 21-byte Additional Authenticated Data (AAD).
+   - Serializes into a self-contained `.cvault` binary container.
+5. The application triggers a download of `<filename>.cvault`.
+6. **Zero-Knowledge Guarantee:** The plaintext file and encryption password are never sent to the backend server. Only the encrypted container is downloaded. This operation consumes **0 credits**.
+
+### Workflow B — Import and Decrypt an Existing Encrypted File
+1. Open CipherVault and navigate to either:
+   - **Decrypt File** in the top navigation bar (`/decrypt`), available publicly to all users without authentication.
+   - **Secure Vault** (`/vault`) -> **Import & Decrypt (.cvault)** when signed in.
+2. Select or drag-and-drop the `.cvault` container received from another user.
+3. CipherVault instantly parses and inspects the container header:
+   - Validates the magic signature (`CVLT`) and format version (`v1`).
+   - Verifies that key-derivation parameters are within safe bounds ($100,000 \le \text{iterations} \le 5,000,000$).
+   - Displays non-sensitive metadata: algorithm (AES-256-GCM), KDF (PBKDF2-HMAC-SHA256), iterations (600,000), salt (hex), nonce (hex), auth tag (hex), and ciphertext size.
+4. Enter the decryption password supplied by the sender and click **Decrypt & Download Plaintext**.
+5. The application unwraps the FEK, validates the 128-bit MAC tag with AAD, reconstructs the original plaintext in memory, and triggers the download.
+6. **Integrity & Tamper Resistance:** If the password is wrong, or if even a single byte of ciphertext, nonce, or authentication tag was modified, authenticated decryption fails immediately and zero plaintext is released.
+
+### Encrypted Container vs. Plaintext Download
+- **Download Encrypted File (`.cvault`):** Downloads the raw ciphertext container. The file remains strongly encrypted at rest and requires the password to open.
+- **Decrypt & Download Plaintext:** Recovers the unencrypted file. Once saved, the resulting file is no longer protected by CipherVault encryption. Users are explicitly cautioned about this distinction in the interface.
+
+### Out-of-Band Password Sharing Advisory
+> [!IMPORTANT]
+> Always transmit the decryption password through a separate, secure communication channel (e.g. Signal, encrypted voice call, in-person exchange) rather than through the same channel used to send the `.cvault` file. Never attach the password in the same email or message as the encrypted container.
+
+### Sample Demonstration Container
+The repository includes a pre-encrypted demonstration file:
+- **File:** `CipherVault_Demo_Encrypted.cvault`
+- **Password:** `DemoVault@2026!`
+- **Verification:** Import this file at `/decrypt` or `/vault` to test independent decryption and verification.
+
+---
+
+## 2. Portable `.cvault` Binary Container Specification (Version 1)
+
+The `.cvault` file format is a self-contained, versioned binary container designed for independent portability:
+
+| Byte Offset | Field Length | Data Type | Description |
+|---|---|---|---|
+| `0x00 .. 0x03` | 4 bytes | ASCII String | Magic Signature: ASCII `'CVLT'` (`0x43 0x56 0x4C 0x54`) |
+| `0x04` | 1 byte | uint8 | Format Version: `0x01` (Version 1) |
+| `0x05 .. 0x14` | 16 bytes | Raw Bytes | CSPRNG Random Salt (PBKDF2 salt) |
+| `0x15 .. 0x18` | 4 bytes | uint32 BE | KDF Iterations (Big-Endian, default: 600,000) |
+| `0x19 .. 0x40` | 40 bytes | Raw Bytes | NIST SP 800-38F AES Key Wrap (Wrapped 256-bit FEK) |
+| `0x41 .. 0x4C` | 12 bytes | Raw Bytes | AES-GCM Initialization Vector (96-bit Nonce) |
+| `0x4D .. 0x5C` | 16 bytes | Raw Bytes | AES-GCM Authentication Tag (128-bit MAC) |
+| `0x5D .. EOF` | Variable | Raw Bytes | AES-256-GCM Ciphertext Payload |
+
+**Additional Authenticated Data (AAD):**  
+To prevent header truncation, splicing, or version-downgrade attacks, the first 21 bytes (`'CVLT'` + `Version` + `Salt`) are fed as Additional Authenticated Data into AES-GCM encryption and decryption. If an attacker modifies the version byte or salt, the AES-GCM authentication tag verification fails immediately.
+
+---
+
+## 3. Public Features & Authentication Gating
 
 CipherVault 2.0 features a dedicated public website experience alongside authenticated secure application modules:
 
@@ -151,13 +220,13 @@ python CipherVault.py --test
 
 | Test Suite | Command | Result | Notes |
 |---|---|---|---|
-| **Python Unit & Regression** | `pytest tests/ -v` | **70 PASSED** (5.51s) | Modulo-92 Caesar, bijection, shuffle, Argon2id, atomic persistence. |
-| **Vitest Web Crypto & Isolation** | `npx vitest run` | **24 PASSED** (9.35s) | Web Crypto AES-GCM, PBKDF2, AES-KW, IDOR isolation, credit accounting. |
+| **Python Unit & Regression** | `pytest tests/ -v` | **70 PASSED** (5.33s) | Modulo-92 Caesar, bijection, shuffle, Argon2id, atomic persistence. |
+| **Vitest Web Crypto & Isolation** | `npx vitest run` | **29 PASSED** (9.10s) | Web Crypto AES-GCM, PBKDF2, AES-KW, portable sharing, tampering rejection, IDOR isolation, credit accounting. |
 | **Python Standalone Self-Test** | `python CipherVault.py --test` | **22 PASSED** (0.75s) | In-process verification of core invariant mappings. |
 | **TypeScript Type Check** | `npx tsc --noEmit` | **0 ERRORS** | Strict type-safety across all routes, pages, and components. |
-| **Next.js Production Build** | `npm run build` | **SUCCESS** | 18 static/dynamic routes compiled cleanly (87.3 kB shared JS). |
+| **Next.js Production Build** | `npm run build` | **SUCCESS** | 19 static/dynamic routes compiled cleanly (87.3 kB shared JS). |
 
-**Total Automated Assertions:** **116 Passed, 0 Failed, 0 Skipped.**
+**Total Automated Assertions:** **121 Passed, 0 Failed, 0 Skipped.**
 
 ---
 

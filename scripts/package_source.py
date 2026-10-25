@@ -62,7 +62,7 @@ def package_project():
                 if file in EXCLUDE_FILES:
                     continue
                 ext = os.path.splitext(file)[1].lower()
-                if ext in EXCLUDE_EXTS:
+                if ext in EXCLUDE_EXTS and file != "CipherVault_Demo_Encrypted.cvault":
                     continue
 
                 abs_file_path = os.path.join(root, file)

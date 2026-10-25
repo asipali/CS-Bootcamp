@@ -177,3 +177,70 @@ export async function decryptFileClientSide(
     );
   }
 }
+
+/**
+ * Inspects decrypted plaintext bytes to detect common MIME types and suggested file extensions.
+ */
+export function inferMimeTypeAndExtension(
+  data: Uint8Array,
+  fallbackBaseName: string = "decrypted_file"
+): { mimeType: string; suggestedName: string } {
+  // Strip .cvault if present on the base name
+  let cleanName = fallbackBaseName;
+  if (cleanName.toLowerCase().endsWith(".cvault")) {
+    cleanName = cleanName.slice(0, -7);
+  }
+
+  // If already has a valid dot extension (e.g. sample.pdf), preserve it
+  if (cleanName.includes(".") && !cleanName.endsWith(".")) {
+    return { mimeType: "application/octet-stream", suggestedName: cleanName };
+  }
+
+  // 1. PDF signature (%PDF-)
+  if (
+    data.length >= 4 &&
+    data[0] === 0x25 &&
+    data[1] === 0x50 &&
+    data[2] === 0x44 &&
+    data[3] === 0x46
+  ) {
+    return { mimeType: "application/pdf", suggestedName: `${cleanName}.pdf` };
+  }
+
+  // 2. PNG signature (\x89PNG)
+  if (
+    data.length >= 4 &&
+    data[0] === 0x89 &&
+    data[1] === 0x50 &&
+    data[2] === 0x4e &&
+    data[3] === 0x47
+  ) {
+    return { mimeType: "image/png", suggestedName: `${cleanName}.png` };
+  }
+
+  // 3. JPEG signature (0xFF 0xD8 0xFF)
+  if (data.length >= 3 && data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) {
+    return { mimeType: "image/jpeg", suggestedName: `${cleanName}.jpg` };
+  }
+
+  // 4. ZIP / DOCX signature (PK\x03\x04)
+  if (data.length >= 4 && data[0] === 0x50 && data[1] === 0x4b && data[2] === 0x03 && data[3] === 0x04) {
+    return { mimeType: "application/zip", suggestedName: `${cleanName}.zip` };
+  }
+
+  // 5. UTF-8 Plaintext probe
+  let isText = true;
+  for (let i = 0; i < Math.min(data.length, 512); i++) {
+    const byte = data[i];
+    if (byte < 0x09 || (byte > 0x0d && byte < 0x20) || byte === 0x7f) {
+      isText = false;
+      break;
+    }
+  }
+  if (isText && data.length > 0) {
+    return { mimeType: "text/plain", suggestedName: `${cleanName}.txt` };
+  }
+
+  return { mimeType: "application/octet-stream", suggestedName: `${cleanName}.bin` };
+}
+

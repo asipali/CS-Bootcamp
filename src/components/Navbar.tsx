@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Shield, Lock, BookOpen, Activity, User, LogOut, Sparkles } from "lucide-react";
+import { Shield, Lock, BookOpen, Activity, User, LogOut, Sparkles, Unlock } from "lucide-react";
 
 export function Navbar() {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -53,6 +53,13 @@ export function Navbar() {
             className="px-3 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
           >
             Features
+          </Link>
+          <Link
+            href="/decrypt"
+            className="flex items-center space-x-1 px-3 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
+          >
+            <Unlock className="w-4 h-4 text-emerald-600" />
+            <span>Decrypt File</span>
           </Link>
           <Link
             href="/lab"
